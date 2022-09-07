@@ -436,7 +436,7 @@ export class ChannelState<StreamChatGenerics extends ExtendableGenerics = Defaul
     addIfDoesNotExist = true,
   ) {
     const addMessageToList = addIfDoesNotExist || timestampChanged;
-    let messageArr = messages;
+    let messageArr = [...messages];
 
     // if created_at has changed, message should be filtered and re-inserted in correct order
     // slow op but usually this only happens for a message inserted to state before actual response with correct timestamp
