@@ -148,14 +148,14 @@ export class StableWSConnection<StreamChatGenerics extends ExtendableGenerics = 
         for (let i = 0; i <= timeout; i += interval) {
           try {
             return await this.connectionOpen;
-          } catch (error) {
+          } catch (error: any) {
             if (i === timeout) {
               throw new Error(
                 JSON.stringify({
-                  code: (error as any)?.code,
-                  StatusCode: (error as any)?.StatusCode,
-                  message: (error as any)?.message,
-                  isWSFailure: (error as any)?.isWSFailure,
+                  code: error?.code,
+                  StatusCode: error?.StatusCode,
+                  message: error?.message,
+                  isWSFailure: error?.isWSFailure,
                 }),
               );
             }
