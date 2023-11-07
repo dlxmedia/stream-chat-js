@@ -11,7 +11,6 @@ import {
 import { buildWsFatalInsight, buildWsSuccessAfterFailureInsight, postInsights } from './insights';
 import { ConnectAPIResponse, ConnectionOpen, ExtendableGenerics, DefaultGenerics, UR, LogLevel } from './types';
 import { StreamChat } from './client';
-import { isAPIError } from './errors';
 
 // Type guards to check WebSocket error type
 const isCloseEvent = (res: WebSocket.CloseEvent | WebSocket.Data | WebSocket.ErrorEvent): res is WebSocket.CloseEvent =>
@@ -114,11 +113,9 @@ export class StableWSConnection<StreamChatGenerics extends ExtendableGenerics = 
       this.consecutiveFailures = 0;
 
       this._log(`connect() - Established ws connection with healthcheck: ${healthCheck}`);
-    } catch (error) {
+    } catch (error: any) {
       this.isHealthy = false;
       this.consecutiveFailures += 1;
-
-      if (!isAPIError(error)) throw error;
 
       if (error.code === chatCodes.TOKEN_EXPIRED && !this.client.tokenManager.isStatic()) {
         this._log('connect() - WS failure due to expired token, so going to try to reload token and reconnect');
@@ -153,13 +150,12 @@ export class StableWSConnection<StreamChatGenerics extends ExtendableGenerics = 
             return await this.connectionOpen;
           } catch (error) {
             if (i === timeout) {
-              const useApiError = isAPIError(error);
               throw new Error(
                 JSON.stringify({
-                  code: useApiError ? error.code : 0,
-                  StatusCode: useApiError ? error?.StatusCode : 0,
-                  message: useApiError ? error.message : '',
-                  isWSFailure: useApiError ? error.isWSFailure : false,
+                  code: (error as any)?.code,
+                  StatusCode: (error as any)?.StatusCode,
+                  message: (error as any)?.message,
+                  isWSFailure: (error as any)?.isWSFailure,
                 }),
               );
             }
@@ -370,11 +366,9 @@ export class StableWSConnection<StreamChatGenerics extends ExtendableGenerics = 
       this._log('_reconnect() - Finished recoverCallBack');
 
       this.consecutiveFailures = 0;
-    } catch (error) {
+    } catch (error: any) {
       this.isHealthy = false;
       this.consecutiveFailures += 1;
-
-      if (!isAPIError(error)) throw error;
 
       if (error.code === chatCodes.TOKEN_EXPIRED && !this.client.tokenManager.isStatic()) {
         this._log('_reconnect() - WS failure due to expired token, so going to try to reload token and reconnect');

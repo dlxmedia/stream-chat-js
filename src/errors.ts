@@ -37,9 +37,7 @@ export function isAPIError(error: unknown): error is APIError {
   return (error as APIError)?.code !== undefined;
 }
 
-export function isErrorRetryable(error: unknown) {
-  if (!isAPIError(error)) return false;
-
+export function isErrorRetryable(error: any) {
   if (!error.code) return false;
   const err = APIErrorCodes[`${error.code}`];
   if (!err) return false;
@@ -47,14 +45,12 @@ export function isErrorRetryable(error: unknown) {
 }
 
 export function isConnectionIDError(error: unknown) {
-  if (!isAPIError(error)) return false;
+  //
 
-  return error.code === 46; // ConnectionIDNotFoundError
+  return (error as any)?.code === 46; // ConnectionIDNotFoundError
 }
 
-export function isWSFailure(err: unknown): boolean {
-  if (!isAPIError(err)) return false;
-
+export function isWSFailure(err: any): boolean {
   if (typeof err.isWSFailure === 'boolean') {
     return err.isWSFailure;
   }
