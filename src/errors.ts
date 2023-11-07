@@ -31,24 +31,30 @@ export const APIErrorCodes: Record<string, { name: string; retryable: boolean }>
   '99': { name: 'AppSuspendedError', retryable: false },
 };
 
-type APIError = Error & { code: number; isWSFailure?: boolean };
+type APIError = Error & { code: number; isWSFailure?: boolean; StatusCode?: number };
 
-export function isAPIError(error: Error): error is APIError {
-  return (error as APIError).code !== undefined;
+export function isAPIError(error: unknown): error is APIError {
+  return (error as APIError)?.code !== undefined;
 }
 
-export function isErrorRetryable(error: APIError) {
+export function isErrorRetryable(error: unknown) {
+  if (!isAPIError(error)) return false;
+
   if (!error.code) return false;
   const err = APIErrorCodes[`${error.code}`];
   if (!err) return false;
   return err.retryable;
 }
 
-export function isConnectionIDError(error: APIError) {
+export function isConnectionIDError(error: unknown) {
+  if (!isAPIError(error)) return false;
+
   return error.code === 46; // ConnectionIDNotFoundError
 }
 
-export function isWSFailure(err: APIError): boolean {
+export function isWSFailure(err: unknown): boolean {
+  if (!isAPIError(err)) return false;
+
   if (typeof err.isWSFailure === 'boolean') {
     return err.isWSFailure;
   }
