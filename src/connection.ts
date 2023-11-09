@@ -298,9 +298,9 @@ export class StableWSConnection<StreamChatGenerics extends ExtendableGenerics = 
         }
         return response;
       }
-    } catch (err) {
+    } catch (err: any) {
       this.isConnecting = false;
-      this._log(`_connect() - Error - `, err as any);
+      this._log(`_connect() - Error - `, err);
       if (this.client.options.enableInsights) {
         this.client.insightMetrics.wsConsecutiveFailures++;
         this.client.insightMetrics.wsTotalFailures++;
