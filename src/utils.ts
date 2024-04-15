@@ -306,7 +306,7 @@ export function addToMessageList<StreamChatGenerics extends ExtendableGenerics =
   addIfDoesNotExist = true,
 ) {
   const addMessageToList = addIfDoesNotExist || timestampChanged;
-  let messageArr = messages;
+  let messageArr = [...messages];
 
   // if created_at has changed, message should be filtered and re-inserted in correct order
   // slow op but usually this only happens for a message inserted to state before actual response with correct timestamp
@@ -321,7 +321,7 @@ export function addToMessageList<StreamChatGenerics extends ExtendableGenerics =
   if (messageArrayLength === 0 && addMessageToList) {
     return messageArr.concat(message);
   } else if (messageArrayLength === 0) {
-    return [...messageArr];
+    return messageArr;
   }
 
   const messageTime = (message[sortBy] as Date).getTime();
@@ -331,7 +331,7 @@ export function addToMessageList<StreamChatGenerics extends ExtendableGenerics =
   if (messageIsNewest && addMessageToList) {
     return messageArr.concat(message);
   } else if (messageIsNewest) {
-    return [...messageArr];
+    return messageArr;
   }
 
   // find the closest index to push the new message
@@ -348,12 +348,12 @@ export function addToMessageList<StreamChatGenerics extends ExtendableGenerics =
   if (!timestampChanged && message.id) {
     if (messageArr[left] && message.id === messageArr[left].id) {
       messageArr[left] = message;
-      return [...messageArr];
+      return messageArr;
     }
 
     if (messageArr[left - 1] && message.id === messageArr[left - 1].id) {
       messageArr[left - 1] = message;
-      return [...messageArr];
+      return messageArr;
     }
   }
 
@@ -362,5 +362,5 @@ export function addToMessageList<StreamChatGenerics extends ExtendableGenerics =
   if (addMessageToList) {
     messageArr.splice(left, 0, message);
   }
-  return [...messageArr];
+  return messageArr;
 }
